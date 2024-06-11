@@ -23,6 +23,14 @@ export default function App() {
 }
 ```
 
+## Take it for a test drive:
+
+```bash
+git clone ...
+npm install
+npm run dev
+```
+
 ## Features
 
 - Validation of various input types, including text, email, number, telephone, and credit card
