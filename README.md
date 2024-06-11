@@ -130,8 +130,9 @@ function App() {
   const formRef = useRef(null);
   const [formData, setFormState] = useState({});
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (data) => {
+                    //   ^ The form component handles this for us by providing 
+                    // data from the form, but here is an example anyway
     const data = getFormData(formRef.current);
     setFormState(data);
   };
