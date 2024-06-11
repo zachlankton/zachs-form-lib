@@ -1,5 +1,9 @@
 # React Form Library
 
+<img width="501" alt="image" src="https://github.com/zachlankton/zachs-form-lib/assets/2927894/0e298279-5629-4144-b71d-98b3044c163c">
+
+---
+
 This project demonstrates a pattern for handling forms in React applications. It provides a set of example components and utilities to simplify the process of managing form state, validation, and submission.
 
 The end goal is that once you have tweaked the example `Form` and `Input` components to fit your style system you should be able to write forms like this:
