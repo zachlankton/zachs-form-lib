@@ -33,6 +33,7 @@ export default function App() {
 The biggest thing that breaks my flow when coding forms in react
 is having to think about all the state management that goes into it.
 When at the end of the day, 99% of the time, all I want is a simple form that
+automatically handles validation and
 provides me the data in the submit handler for me to do what I want with.  
 Having to think about how the values from the form inputs should 
 "update the state" on every keystroke, change, or blur
