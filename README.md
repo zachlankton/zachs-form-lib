@@ -30,6 +30,22 @@ export default function App() {
 }
 ```
 
+The biggest thing that breaks my flow when coding forms in react
+is having to think about all the state management that goes into it.
+When at the end of the day, 99% of the time, all I want is a simple form that
+provides me the data in the submit handler for me to do what I want with.  
+Having to think about how the values from the form inputs should 
+"update the state" on every keystroke, change, or blur
+distracts from this task.
+
+Even if the decision is made to add a react-hook-form or tanstacks new form library
+I think this pattern still applies: Spend some time wrapping that library in a way
+that makes your developers more productive in your own project.
+
+If devs are forced to use the primitives provided by the form library every single
+time they want to create a simple new form this slows things down and breaks flow.
+
+
 ## Take it for a test drive:
 
 ```bash
