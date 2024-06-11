@@ -48,12 +48,21 @@ npm run dev
 - Integration with native form validation
 - Easy setup and configuration
 
-## Demo
+## Approach
 
 This project provides a lightweight and flexible library for form validation in React applications. The library, 
 located in the `formLibrary` folder, offers a set of utilities and functions to simplify the process of validating form inputs and managing form state.
 By taking ownership of the library it can grow and adapt with your project.
 You are free to add or remove features as you see fit.
+
+The main idea behind this form library is to leverage the power of React's component-based architecture and the native form validation API. Instead of relying heavily on hooks and external state management, this library enables a more declarative approach.
+
+Key aspects of the approach:
+
+- Form state is managed by leveraging built in browser features.
+- Validation is performed using a combination of native form validation attributes and custom validation functions.
+- Error handling is completely customizeable, but this demo shows how its done by displaying error messages below each input field.
+- Form submission is handled by a submit handler function that receives the form data after the form validation.
 
 ---
 
@@ -102,36 +111,60 @@ In this example, the `Input` component uses the `setupValidatorInput` function f
 
 ---
 
-## Motivation
 
-When building React applications, handling forms can become complex and repetitive. This project aims to provide a streamlined approach to form management, focusing on a pattern that differs from popular libraries like react-hook-form.
+## Utilities
 
-## Approach
+- `getFormData`: A function that retrieves the form data as an object.
+- `setFormData`: A function that sets the form data based on an object.
 
-The main idea behind this form library is to leverage the power of React's component-based architecture and the native form validation API. Instead of relying heavily on hooks and external state management, this library utilizes a more declarative approach.
+### Example:
 
-Key aspects of the approach:
+```jsx
+import { useRef, useState } from 'react';
+import { Form } from './components/Form';
+import { Input } from './components/Input';
+import { Button } from './components/Button';
+import { getFormData, setFormData } from './formLibrary/formHelper';
 
-- Form state is managed by leveraging built in browser features.
-- Validation is performed using a combination of native form validation attributes and custom validation functions.
-- Error handling is completely customizeable, but this demo shows how its done by displaying error messages below each input field.
-- Form submission is handled by a submit handler function that receives the form data after the form validation.
+function App() {
+  const formRef = useRef(null);
+  const [formData, setFormState] = useState({});
 
-## Comparison with react-hook-form
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = getFormData(formRef.current);
+    setFormState(data);
+  };
 
-While react-hook-form is a popular choice for form management in React, it takes a different approach compared to this library.
+  const handlePopulateForm = () => {
+    const data = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      age: 25,
+    };
+    setFormData(formRef.current, data);
+  };
 
-react-hook-form:
-- Relies heavily on hooks for form state management and validation.
-- Requires explicit registration of form fields using the `register` function.
-- Provides a `handleSubmit` function that wraps the form submission logic.
-- Offers a more imperative API for form control and validation.
+  return (
+    <div>
+      <Form ref={formRef} onSubmit={handleSubmit}>
+        <Input name="name" label="Name" required />
+        <Input name="email" label="Email" type="email" required />
+        <Input name="age" label="Age" type="number" min={18} />
+        <Button type="submit">Submit</Button>
+      </Form>
 
-This library:
-- Utilizes React's component-based architecture for form structure.
-- Leverages native form validation attributes and custom validation functions.
-- Handles form submission through a simple submit handler function.
-- Provides a more declarative API, where form fields and validation rules are defined within the JSX.
+      <Button onClick={handlePopulateForm}>Populate Form</Button>
+
+      <pre>{JSON.stringify(formData, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+---
+
+
 
 ## Example Components
 
@@ -167,14 +200,32 @@ function App() {
 }
 ```
 
+---
+
+## Motivation
+
+When building React applications, handling forms can become complex and repetitive. This project aims to provide a streamlined approach to form management, focusing on a pattern that differs from popular libraries like react-hook-form.
+
+
+
+## Comparison with react-hook-form
+
+While react-hook-form is a popular choice for form management in React, it takes a different approach compared to this library.
+
+react-hook-form:
+- Relies heavily on hooks for form state management and validation.
+- Requires explicit registration of form fields using the `register` function.
+- Provides a `handleSubmit` function that wraps the form submission logic.
+- Offers a more imperative API for form control and validation.
+
+This library:
+- Utilizes React's component-based architecture for form structure.
+- Leverages native form validation attributes and custom validation functions.
+- Handles form submission through a simple submit handler function.
+- Provides a more declarative API, where form fields and validation rules are defined within the JSX.
+
 ## Conclusion
 
 This React Form Library provides a straightforward and declarative approach to form management in React applications. By leveraging React's component-based architecture and native form validation, it offers a clean and intuitive way to handle form state, validation, and submission.
 
 While it may not have all the bells and whistles of more complex form libraries, it serves as a solid foundation for building forms in React and can be extended and customized to fit specific project requirements.
-
-## Utilities
-
-- `getFormData`: A function that retrieves the form data as an object.
-- `setFormData`: A function that sets the form data based on an object.
-

@@ -11,8 +11,19 @@ const testValue = {
   name: "Name Test Value",
   email: "name.test@value.com",
   age: 50,
-  "phone-with-mask": "asdf999asdf888asdf7777asdf",
+  "phone-with-mask": "(999) 888-7777",
   "phone-un-masked": "1231231231",
+  "credit-card": "4111 1111 1111 1111",
+  a: {
+    complex: [
+      null,
+      {
+        name: {
+          path: "cool",
+        },
+      },
+    ],
+  },
 };
 
 function App() {
@@ -46,6 +57,12 @@ function App() {
         />
 
         <CreditCardInput name="credit-card" label="Credit Card" required />
+
+        <Input
+          name="a.complex[1].name[path]"
+          label="A Complex Name Path Example"
+          required
+        />
 
         <Btn type="submit">Submit</Btn>
         <Btn type="reset">Reset</Btn>
