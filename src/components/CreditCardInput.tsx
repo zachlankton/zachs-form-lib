@@ -26,6 +26,7 @@ export function CreditCardInput(props: any) {
       exactLength={16}
       validateUnMaskedValue={true}
       customValidator={luhnCheck}
+      unmaskInputValueProp={true}
       customErrorMessages={{
         customNotValid: "Invalid credit card number... Try 4111 1111 1111 1111",
       }}
