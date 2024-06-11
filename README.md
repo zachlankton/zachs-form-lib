@@ -1,6 +1,8 @@
 # React Form Library
 
 <img width="489" alt="image" src="https://github.com/zachlankton/zachs-form-lib/assets/2927894/7deb8269-65a7-43f7-904f-0e16c0571c65">
+<img width="497" alt="image" src="https://github.com/zachlankton/zachs-form-lib/assets/2927894/3d820f03-3df7-4817-abc6-fd5e793b7ef4">
+
 
 
 ---
@@ -48,10 +50,9 @@ npm run dev
 
 ## Demo
 
-This project provides a lightweight and flexible library for form validation in React applications. The library, located in the `formLibrary` folder, offers a set of utilities and functions to simplify the process of validating form inputs and managing form state.
-
-The library is minimal and very approachable which makes ownership and maintenance dead simple.
-By taking ownership of the library the library can grow and adapt with your project.
+This project provides a lightweight and flexible library for form validation in React applications. The library, 
+located in the `formLibrary` folder, offers a set of utilities and functions to simplify the process of validating form inputs and managing form state.
+By taking ownership of the library it can grow and adapt with your project.
 You are free to add or remove features as you see fit.
 
 ---
