@@ -1,6 +1,7 @@
 # React Form Library
 
-<img width="501" alt="image" src="https://github.com/zachlankton/zachs-form-lib/assets/2927894/0e298279-5629-4144-b71d-98b3044c163c">
+<img width="489" alt="image" src="https://github.com/zachlankton/zachs-form-lib/assets/2927894/7deb8269-65a7-43f7-904f-0e16c0571c65">
+
 
 ---
 
