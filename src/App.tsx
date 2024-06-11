@@ -39,6 +39,7 @@ function App() {
           label="Age"
           required
           type="number"
+          validateOnInput={false}
           customValidator={(val) =>
             +val >= 20 && +val <= 50 ? true : "Must be between 20 and 50"
           }
