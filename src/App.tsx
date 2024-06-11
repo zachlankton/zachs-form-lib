@@ -47,7 +47,7 @@ function App() {
 
         <TelephoneInput
           name="phone-with-mask"
-          label="Phone (value includeds mask)"
+          label="Phone (value includes mask)"
           required
         />
         <TelephoneInput
