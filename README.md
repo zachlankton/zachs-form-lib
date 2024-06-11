@@ -38,7 +38,7 @@ Having to think about how the values from the form inputs should
 "update the state" on every keystroke, change, or blur
 distracts from this task.
 
-Even if the decision is made to add a react-hook-form or tanstacks new form library
+Even if the decision is made to add react-hook-form or tanstacks new form library
 I think this pattern still applies: Spend some time wrapping that library in a way
 that makes your developers more productive in your own project.
 
