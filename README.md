@@ -78,7 +78,7 @@ These files can be imported and used in your React components to handle form val
 
 ## Example Usage
 
-The `components` folder contains examples of how to implement various form components that leverage the validation library. These examples demonstrate how to create custom input components, such as `Form`, `Input`, `TelephoneInput`, and `CreditCardInput`, and integrate them with the validation library.
+The `components` folder contains examples of how to implement various form components that leverage the validation library. These examples demonstrate how to create `Form` and custom input components, such as `Input`, `TelephoneInput`, and `CreditCardInput`, and integrate them with the validation library.
 
 Here's an example of how to create a custom input component using the validation library:
 
