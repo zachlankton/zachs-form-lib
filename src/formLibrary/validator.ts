@@ -300,6 +300,7 @@ function onBlur(ev: any) {
   if (inputLengthTooLong(inputElm)) return reportLengthTooLong(inputElm);
   if (patternNotValid(inputElm)) return reportPatternNotValid(inputElm);
   if (customNotValid(inputElm)) return reportCustomNotValid(inputElm);
+  if (nativeNotValid(inputElm)) return reportNativeNotValid(inputElm);
   clearValidationError(inputElm);
 }
 
