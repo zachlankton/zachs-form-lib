@@ -18,7 +18,7 @@ interface ValidatorOptions {
   customValidator?: (value: string) => boolean | string;
   mask?: string;
   maskSlots?: string;
-  dataAccept?: RegExp;
+  dataAccept?: RegExp | string;
   allowUnacceptedChars?: boolean;
   unmaskInputValueProp?: boolean;
   showFullMaskWhileTyping?: boolean;
@@ -57,12 +57,6 @@ function setupValidatorInput(opts: ValidatorOptions) {
   validateOptions(opts);
 
   const inputElm = opts.inputElm;
-  if (inputElms.has(inputElm)) {
-    return;
-    return console.error(
-      `${inputElm.name} - This input has already been setup. If you would like to make changes to the options you can access them directly on the [element].validatorOptions.`
-    );
-  }
 
   opts.errorElm = opts.errorElm || createErrorElementForInput(inputElm);
   opts = mergeDefaultOptions(opts);
@@ -113,7 +107,7 @@ function addEventListener(
   elm: HTMLFormElement | HTMLInputElement,
   event: string,
   func: any,
-  opts = {}
+  opts = {},
 ) {
   elm.addEventListener(event, func, opts);
 }
@@ -121,7 +115,7 @@ function addEventListener(
 function ObjectDefineProperty(
   obj: any,
   propName: string,
-  opts: PropertyDescriptor & ThisType<any>
+  opts: PropertyDescriptor & ThisType<any>,
 ) {
   return Object.defineProperty(obj, propName, opts);
 }
@@ -131,9 +125,9 @@ function ObjectGetOwnPropertyDescriptor(proto: any, propName: string) {
 }
 
 function setupValueProxy(inputElm: HTMLInputElement) {
-  const valueProp = ObjectGetOwnPropertyDescriptor(
+  var valueProp = ObjectGetOwnPropertyDescriptor(
     HTMLInputElement.prototype,
-    "value"
+    "value",
   );
 
   const setVal = (newValue: any) => valueProp!.set!.call(inputElm, newValue);
@@ -166,9 +160,16 @@ function getErrorElm(opts: any) {
 }
 
 function mergeDefaultOptions(opts: ValidatorOptions) {
-  const accept = new RegExp(opts.dataAccept || "[\\d\\w]", "g");
-  const testString = `abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()_+-=[]\\;',./{}|:"<>?`;
-  const matchedChars = testString.match(accept);
+  const testString = `abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()_+-=[]\;',./{}|:"<>?`;
+  let accept: RegExp;
+  let matchedChars: RegExpMatchArray | null;
+  try {
+    accept = new RegExp(opts.dataAccept || "[\\d\\w]", "g");
+    matchedChars = testString.match(accept);
+  } catch (e) {
+    console.error(`${opts.dataAccept} is not a valid regex.`, e);
+    matchedChars = testString.match(new RegExp("[\\d\\w]", "g"));
+  }
 
   const defaults = {
     inputElm: null,
@@ -188,7 +189,7 @@ function mergeDefaultOptions(opts: ValidatorOptions) {
     hideDotSlots: true,
     validateUnMaskedValue: true,
     validateOnInput: true,
-    isNumeric: opts.dataAccept && matchedChars!.length === 10,
+    isNumeric: opts.dataAccept && matchedChars?.length === 10,
     customErrorMessages: {
       isRequired: null,
       inputNotLongEnough: null,
@@ -198,6 +199,26 @@ function mergeDefaultOptions(opts: ValidatorOptions) {
   };
 
   return { ...defaults, ...opts } as ValidatorOptionsWithErrorElm;
+}
+
+function shakeInput(inputElm: any) {
+  inputElm.style.transition = "all 0.1s";
+  inputElm.style.transform = "translateX(5px)";
+  setTimeout(() => {
+    inputElm.style.transform = "translateX(-5px)";
+    setTimeout(() => {
+      inputElm.style.transform = "translateX(5px)";
+      setTimeout(() => {
+        inputElm.style.transform = "translateX(-5px)";
+        setTimeout(() => {
+          inputElm.style.transform = "translateX(0)";
+          setTimeout(() => {
+            inputElm.style.transition = "all 0.3s";
+          }, 50);
+        }, 50);
+      }, 50);
+    }, 50);
+  }, 50);
 }
 
 function setupOptionPropertyGettersAndSetters(opts: any) {
@@ -228,29 +249,33 @@ function setupOptionPropertyGettersAndSetters(opts: any) {
 }
 
 function validateOptions(opts: any) {
-  if (!opts.inputElm) throw `inputElm is a required option`;
+  if (!opts.inputElm) console.error(`inputElm is a required option`);
   if (opts.inputElm.nodeName !== `INPUT`)
-    throw `inputElm must be an INPUT element`;
+    console.error(`inputElm must be an INPUT element`);
 
   const name = opts.inputElm.name;
   const prefix = ` - ${name} - invalid config - `;
 
   if (!name) {
     console.error("No name attribute given on input", opts.inputElm);
-    throw `${prefix} Please give your input a name attribute`;
+    console.error(`${prefix} Please give your input a name attribute`);
   }
 
   if (!(opts.errorElm instanceof HTMLElement))
-    throw `${prefix} errorElm must be an HTML Element`;
+    console.error(`${prefix} errorElm must be an HTML Element`);
 
   if (opts.mask && !opts.maskSlots)
-    throw `${prefix} cannot define a mask without defining a maskSlot`;
+    console.error(`${prefix} cannot define a mask without defining a maskSlot`);
 
   if (opts.minLength && opts.exactLength)
-    throw `${prefix} cannot define both minLength and exactLength, pick one.`;
+    console.error(
+      `${prefix} cannot define both minLength and exactLength, pick one.`,
+    );
 
   if (opts.maxLength && opts.exactLength)
-    throw `${prefix} cannot define both maxLength and exactLength, pick one.`;
+    console.error(
+      `${prefix} cannot define both maxLength and exactLength, pick one.`,
+    );
 
   const patternWithoutMinLength =
     opts.pattern &&
@@ -260,13 +285,25 @@ function validateOptions(opts: any) {
     !(opts.minLength || opts.exactLength || !opts.validateOnInput);
 
   if (patternWithoutMinLength || customWithoutMinLength)
-    throw `${prefix} need to define minLength, exactLength, or set validateOnInput: false when using pattern or custom validators.  Otherwise the user will be shown errors immediately as they start typing. This leads to poor UX.  Ideally, we want to give the user a chance to put in the correct input before yelling at them. If your pattern cannot possibly be valid when the input is below a certain length, then we want to wait until that minimum length is met before attempting this validation.`;
+    console.error(
+      `${prefix} need to define minLength, exactLength, or set validateOnInput: false when using pattern or custom validators.  Otherwise the user will be shown errors immediately as they start typing. This leads to poor UX.  Ideally, we want to give the user a chance to put in the correct input before yelling at them. If your pattern cannot possibly be valid when the input is below a certain length, then we want to wait until that minimum length is met before attempting this validation.`,
+    );
 
   if (opts.mask) {
-    const accept = new RegExp(opts.dataAccept || "[\\d\\w]", "g");
-    const maskContainsAcceptChars = opts.mask.match(accept) || [];
-    if (maskContainsAcceptChars.length > 0)
-      throw `${prefix} The 'mask' contains characters that are also able to be typed into the input, please fix the mask or add/correct the 'dataAccept' property to fix this issue`;
+    let accept: RegExp;
+    let maskContainsAcceptChars: RegExpMatchArray | null;
+    try {
+      accept = new RegExp(opts.dataAccept || "[\\d\\w]", "g");
+      maskContainsAcceptChars = opts.mask.match(accept) || [];
+    } catch (e) {
+      console.error(`${opts.dataAccept} is not a valid regex.`, e);
+      maskContainsAcceptChars = opts.mask.match(new RegExp("[\\d\\w]", "g"));
+    }
+    // const accept = new RegExp(opts.dataAccept || "[\\d\\w]", "g");
+    if (maskContainsAcceptChars && maskContainsAcceptChars.length > 0)
+      console.error(
+        `${prefix} The 'mask' contains characters that are also able to be typed into the input, please fix the mask or add/correct the 'dataAccept' property to fix this issue`,
+      );
   }
 
   return "success";
@@ -286,7 +323,6 @@ function onSubmit(ev: any) {
 function resetInput(inputElm: any) {
   setTimeout(() => {
     inputElm.failedRequiredValidationOnce = false;
-    clearValidationError(inputElm);
   }, 0);
 }
 
@@ -312,10 +348,14 @@ function onKeyDown(ev: any) {
   if (opts.allowUnacceptedChars) return;
   const allowedKeys = ["Backspace", "Tab", "ArrowRight", "ArrowLeft"];
   if (allowedKeys.includes(ev.key)) return;
+  if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.shiftKey) return;
 
   const accept = new RegExp(opts.dataAccept);
   const keyNotAccepted = !accept.test(ev.key);
-  if (keyNotAccepted) return ev.preventDefault();
+  if (keyNotAccepted) {
+    shakeInput(inputElm);
+    return ev.preventDefault();
+  }
 }
 
 function onInput(ev: any) {
@@ -574,7 +614,7 @@ function setErrorMessage(inputElm: any, msg: any, native = false) {
 
 let showErrorDeBounce: any = null;
 function setErrorMessages(errorElm: any) {
-  const messages = Array.from(errorElm.errorObj.keys()).join("\n");
+  let messages = Array.from(errorElm.errorObj.keys()).join("\n");
   errorElm.innerText = messages;
 
   clearTimeout(showErrorDeBounce);
@@ -607,7 +647,7 @@ function createErrorElementForInput(inputElm: any) {
 function VMaskerSetupProperties(el: any, formatValue: any) {
   const valueProp = ObjectGetOwnPropertyDescriptor(
     HTMLInputElement.prototype,
-    "value"
+    "value",
   );
   const setVal = (newValue: any) => valueProp!.set!.call(el, newValue);
   const getVal = () => valueProp!.get!.call(el);
@@ -640,8 +680,7 @@ function VMaskerSetupProperties(el: any, formatValue: any) {
       get: () => storedValues[prop],
       set: (newValue) => {
         storedValues[prop] = newValue;
-        el.resetVars();
-        // eslint-disable-next-line no-self-assign
+        // el.resetVars();
         el.value = el.value;
       },
     });
@@ -654,37 +693,38 @@ function VMaskerSetupProperties(el: any, formatValue: any) {
 }
 
 function VMasker(el: any) {
-  let pattern: any = null;
-  let slots: any = null;
-  let accept: any = null;
-  let prev: any = null;
-  let first: any = null;
+  // el.resetVars = () => {
+  //   pattern = el.mask || el.getAttribute("placeholder");
+  //   slots = new Set(el.maskSlots || el.dataset.slots || "_");
+  //   accept = new RegExp(el.dataAccept || el.dataset.accept || "[\\d\\w]", "g");
 
-  el.resetVars = () => {
-    pattern = el.mask || el.getAttribute("placeholder");
-    slots = new Set(el.maskSlots || el.dataset.slots || "_");
-    accept = new RegExp(el.dataAccept || el.dataset.accept || "[\\d\\w]", "g");
+  //   prev = ((j) =>
+  //     Array.from(pattern, (c, i) => (slots.has(c) ? (j = i + 1) : j)))(0);
 
-    prev = ((j) =>
-      Array.from(pattern, (c, i) => (slots.has(c) ? (j = i + 1) : j)))(0);
+  //   first = [...pattern].findIndex((c) => slots.has(c));
+  // };
 
-    first = [...pattern].findIndex((c) => slots.has(c));
-  };
-
-  el.resetVars();
+  // el.resetVars();
 
   const clean = (inputReceived: any) => {
+    const pattern = el.mask || el.getAttribute("placeholder");
+    const slots = new Set(el.maskSlots || el.dataset.slots || "_");
+    const accept = new RegExp(
+      el.dataAccept || el.dataset.accept || "[\\d\\w]",
+      "g",
+    );
     const unmaskedInput = inputReceived.match(accept) || [];
     const cleanInput = Array.from(pattern, (maskChar) =>
       unmaskedInput[0] === maskChar || slots.has(maskChar)
         ? unmaskedInput.shift() || maskChar
-        : maskChar
+        : maskChar,
     );
     el.unmaskedValue = cleanInput?.join("").match(accept)?.join("") || "";
     return cleanInput;
   };
 
   const formatValue = (value: any) => {
+    const slots = new Set(el.maskSlots || el.dataset.slots || "_");
     const fullMaskValue = clean(value);
     const newFirstSlot = fullMaskValue.findIndex((c) => slots.has(c));
     const showFullMask = el.showFullMaskWhileTyping || newFirstSlot === -1;
@@ -711,6 +751,11 @@ function VMasker(el: any) {
   const [getVal, setVal] = VMaskerSetupProperties(el, formatValue);
 
   const format = () => {
+    const pattern = el.mask || el.getAttribute("placeholder");
+    const slots = new Set(el.maskSlots || el.dataset.slots || "_");
+    const prev = ((j) =>
+      Array.from(pattern, (c, i) => (slots.has(c) ? (j = i + 1) : j)))(0);
+    const first = [...pattern].findIndex((c) => slots.has(c));
     const [i, j] = [el.selectionStart, el.selectionEnd].map((i) => {
       i = clean(getVal().slice(0, i)).findIndex((c) => slots.has(c));
       const test =
@@ -724,6 +769,11 @@ function VMasker(el: any) {
   };
 
   const focusFormat = () => {
+    const pattern = el.mask || el.getAttribute("placeholder");
+    const slots = new Set(el.maskSlots || el.dataset.slots || "_");
+    const prev = ((j) =>
+      Array.from(pattern, (c, i) => (slots.has(c) ? (j = i + 1) : j)))(0);
+    const first = [...pattern].findIndex((c) => slots.has(c));
     setVal(formatValue(getVal()));
     setTimeout(() => {
       const [i, j] = [el.selectionStart, el.selectionEnd].map((i) => {
@@ -739,11 +789,23 @@ function VMasker(el: any) {
 
   let back = false;
 
+  if (el.alreadyMasked) return;
   addEventListener(
     el,
     keyDownEvent,
-    (e: any) => (back = e.key === "Backspace"),
-    true
+    (e: any) => {
+      back = e.key === "Backspace";
+      const allowedKeys = ["Backspace", "Tab", "ArrowRight", "ArrowLeft"];
+      if (allowedKeys.includes(e.key)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+
+      const accept = new RegExp(el.dataAccept);
+      const keyNotAccepted = !accept.test(e.key);
+      if (keyNotAccepted) {
+        shakeInput(el);
+      }
+    },
+    true,
   );
   addEventListener(el, inputEvent, format, true);
   addEventListener(el, focusEvent, focusFormat, true);
@@ -751,12 +813,11 @@ function VMasker(el: any) {
   addEventListener(
     el,
     blurEvent,
-    () => pattern.startsWith(getVal()) && setVal(""),
-    true
+    () => el.mask.startsWith(getVal()) && setVal(""),
+    true,
   );
 
   // mask any default values already set in the input
-  // eslint-disable-next-line no-self-assign
   el.value = el.value;
 
   el.alreadyMasked = true;
